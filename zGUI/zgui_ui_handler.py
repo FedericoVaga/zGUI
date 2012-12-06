@@ -115,7 +115,7 @@ class ui_handler(object):
                 print("Cannot plot None")
                 continue
             p.plot(c)
-        p.setGeometry(QtCore.QRect(0, 0, 750, 370))
+        p.setGeometry(QtCore.QRect(0, 0, 755, 365))
         # Show in the GUI the plot
         scene = QtGui.QGraphicsScene()
         scene.addPixmap(QPixmap.grabWidget(p))
