@@ -1,0 +1,2 @@
+This is a simple GUI made in Python with PyQT4 and PyZio. This GUI handle
+ZIO input devices and show acquired samples in a chart
