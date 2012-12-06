@@ -1,6 +1,8 @@
-'''
+"""
 @author: Federico Vaga
-'''
+@copyright: Federico Vaga 2012
+@license: GPLv2
+"""
 from PyQt4 import QtCore, QtGui
 
 class attributeGUI(object):
