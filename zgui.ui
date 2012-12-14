@@ -198,7 +198,7 @@
      <rect>
       <x>20</x>
       <y>160</y>
-      <width>150</width>
+      <width>190</width>
       <height>25</height>
      </rect>
     </property>
@@ -211,12 +211,25 @@
      <rect>
       <x>20</x>
       <y>180</y>
-      <width>150</width>
+      <width>190</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>Show points</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="ckbContinuous">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>200</y>
+      <width>190</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Continuous acquisition</string>
     </property>
    </widget>
   </widget>

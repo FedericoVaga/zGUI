@@ -89,13 +89,7 @@ class ui_handler(object):
             c = Curve(range(len(data)), data, Pen(color, 2), name)
         return c
 
-    def acquireClick(self):
-        """Event associated to the click on the acquire button. When
-        invoked, it acquires on all requested channel"""
-
-        if self.d_i == None or self.cs_i == None or self.ch_i == None:
-            print("Select channel before acquire")
-            return
+    def __acquireData(self):
         # Initialize the list of curves to draw
         curves = []
 
@@ -121,7 +115,24 @@ class ui_handler(object):
         scene.addPixmap(QPixmap.grabWidget(p))
         self.ui.graph.setScene(scene)
         self.ui.graph.show()
-        pass
+
+    def acquireClick(self):
+        """Event associated to the click on the acquire button. When
+        invoked, it acquires on all requested channel"""
+
+        if self.d_i == None or self.cs_i == None or self.ch_i == None:
+            print("Select channel before acquire")
+            return
+
+        if self.ui.ckbContinuous.isChecked():
+            if self.ui.btnAcq.text() == "Acquire":
+                self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", "Stop", None, QtGui.QApplication.UnicodeUTF8))
+            else:
+                self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", "Acquire", None, QtGui.QApplication.UnicodeUTF8))
+
+            # TODO acquire data continous
+        else:
+            self.__acquireData()
 
     def __refreshAttributesGUI(self, tab, attrListGUI, attrsList):
         """Remove old attributes and update the GUI with new ones"""
