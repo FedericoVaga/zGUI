@@ -76,13 +76,12 @@ class ui_handler(object):
 
     def __acquireChan(self, chan):
         """Acquire data from channel and draw its curve"""
-        chan.interface.readBlock()
-        data = chan.interface.getSamples()
+        ctrl, data = chan.interface.readBlock(True, True)
         if data == None:
             return None # not plottable
         color = QColor(random.randint(0, 255), random.randint(0,255), random.randint(0,255))
 
-        name = chan.name + " (" + str(chan.interface.ctrl.seq_num) + ")"
+        name = chan.name + " (" + str(ctrl.seq_num) + ")"
         if self.ui.ckbPoint.isChecked():
             c = Curve(range(len(data)), data, Pen(color, 2), Symbol(Circle, Black, 4), name)
         else:
