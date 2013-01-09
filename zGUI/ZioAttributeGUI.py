@@ -5,12 +5,12 @@
 """
 from PyQt4 import QtCore, QtGui
 
-class zAttributeGUI(object):
+class ZioAttributeGUI(object):
     """It creates and it handles the GUI for a ZIO attribute"""
-    def __init__(self, zGUI, parent, attr, x, y):
+    def __init__(self, zgui, parent, attr, x, y):
         """Create the GUI to handle an attribute. It creates (ASCII art):
         Label [field] [Get][Set]"""
-        self.zGUI = zGUI
+        self.zgui = zgui
         self.attr = attr
         # Create the label
         self.lbl = QtGui.QLabel(parent)
@@ -22,23 +22,23 @@ class zAttributeGUI(object):
         self.edt = QtGui.QLineEdit(parent)
         self.edt.setGeometry(QtCore.QRect(x + 100 , y, 150, 25))
         self.edt.setObjectName("edit")
-        self.edt.setText(self.attr.getValue())
+        self.refresh_value()
         self.edt.show()
         # Create the Set button to set the value to the attribute
         self.btnSet = QtGui.QPushButton("Set",parent)
         self.btnSet.setGeometry(QtCore.QRect(x + 250 , y, 40, 25))
         self.btnSet.setObjectName("write")
-        self.btnSet.setEnabled(attr.isWritable())
+        self.btnSet.setEnabled(attr.is_writable())
         if self.btnSet.isEnabled():
-            self.btnSet.clicked.connect(self.__btnSetClick)
+            self.btnSet.clicked.connect(self.__btn_set_click)
         self.btnSet.show()
         # Create the get button to get the last value of the attribute
         self.btnGet = QtGui.QPushButton("Get", parent)
         self.btnGet.setGeometry(QtCore.QRect(x + 290 , y, 40, 25))
         self.btnGet.setObjectName("read")
-        self.btnGet.setEnabled(attr.isReadable())
+        self.btnGet.setEnabled(attr.is_readable())
         if self.btnGet.isEnabled():
-            self.btnGet.clicked.connect(self.__btnGetClick)
+            self.btnGet.clicked.connect(self.__btn_get_click)
         self.btnGet.show()
         pass
 
@@ -50,22 +50,23 @@ class zAttributeGUI(object):
         self.edt.setParent(None)
         pass
 
-    def refreshValue(self):
-        self.edt.setText(self.attr.getValue())
+    def refresh_value(self):
+        if self.attr.is_readable():
+                self.edt.setText(self.attr.get_value())
         pass
 
     # PRIVATE FUNCTIONS
 
-    def __btnSetClick(self):
+    def __btn_set_click(self):
         """It gets a value from the edit field and it sets to the attribute.
         Then it refresh the GUI with the current value of the attribute. It
         should be the setted one, but if the driver refuse the value it can be
         a different value"""
-        self.attr.setValue(self.edt.text())
-        self.zGUI.refreshAttributes()
+        self.attr.set_value(self.edt.text())
+        self.zgui.refresh_attributes()
         pass
 
-    def __btnGetClick(self):
+    def __btn_get_click(self):
         """It update the edit field with the current value of the attirbute"""
-        self.refreshValue()
+        self.refresh_value()
         pass
