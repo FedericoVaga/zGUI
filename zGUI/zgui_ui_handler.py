@@ -10,7 +10,7 @@ from PyQt4.Qwt5.qplt import *
 
 from PyZio import *
 from PyZio.zUtil import *
-from .attributegui import attributeGUI
+from .zAttributeGUI import zAttributeGUI
 
 import random
 
@@ -139,7 +139,7 @@ class ui_handler(object):
         y = 10
         del attrListGUI[:]
         for attr in attrsList:
-            attrListGUI.append(attributeGUI(self, tab, attrsList[attr], x, y))
+            attrListGUI.append(zAttributeGUI(self, tab, attrsList[attr], x, y))
             y += 30
         pass
 
