@@ -105,6 +105,8 @@ class ZioGuiHandler(object):
         # curves to the list ...
         if self.ui.ckbNShow.isChecked():
             for chan in self.zdevlist[self.d_i].cset[self.cs_i].chan:
+                if chan.is_interleaved():
+                    continue; # skip interleaved
                 curves.append(self.__acquire_chan(chan))
         # ... otherwise add only the selected channel's curve
         else:
