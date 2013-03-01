@@ -24,7 +24,7 @@ class ZioGuiHandler(object):
 
         self.zdevlist = []
         self.color_index = 0;
-        self.color = [Black, Red, Yellow, Cyan, Magenta, Green, Blue]
+        self.color = [Red, Green, Blue, Black, Yellow, Cyan, Magenta]
         self.zdev_attr = []
         self.cset_attr = []
         self.trig_attr = []
@@ -82,18 +82,17 @@ class ZioGuiHandler(object):
         for agui in self.buf_attr:
             agui.refresh_value()
 
-    def __acquire_chan(self, chan):
+    def __acquire_chan(self, chan, i):
         """Acquire data from channel and draw its curve"""
         ctrl, data = chan.interface.read_block(True, True)
         if data == None:
             return None # not plottable
-        color = QColor(random.randint(0, 255), random.randint(0,255), random.randint(0,255))
 
         name = chan.name + " (" + str(ctrl.seq_num) + ")"
         if self.ui.ckbPoint.isChecked():
-            c = Curve(range(len(data)), data, Pen(color, 2), Symbol(Circle, Black, 4), name)
+            c = Curve(range(len(data)), data, Pen(self.color[i], 2), Symbol(Circle, Black, 4), name)
         else:
-            c = Curve(range(len(data)), data, Pen(color, 2), name)
+            c = Curve(range(len(data)), data, Pen(self.color[i], 2), name)
         return c
 
 
@@ -104,16 +103,19 @@ class ZioGuiHandler(object):
         # If the user wants to display all the channels, then add all
         # curves to the list ...
         if self.ui.ckbNShow.isChecked():
+            i = 0
             for chan in self.zdevlist[self.d_i].cset[self.cs_i].chan:
                 if chan.is_interleaved():
                     continue; # skip interleaved
-                curves.append(self.__acquire_chan(chan))
+                curves.append(self.__acquire_chan(chan, i))
+                i = i + 1
         # ... otherwise add only the selected channel's curve
         else:
             chan = self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i]
-            curves.append(self.__acquire_chan(chan))
+            curves.append(self.__acquire_chan(chan, self.ch_i))
         # Create a plot of curves
         p = Plot("Data")
+        p.hide()
         for c in curves:
             if c == None:
                 print("Cannot plot None")
