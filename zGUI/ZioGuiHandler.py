@@ -7,7 +7,7 @@
 from PyQt4 import QtCore, QtGui
 
 from PyQt4.Qwt5.qplt import Circle, QPixmap
-from PyQt4.Qwt5.qplt import Plot, Pen, Curve, QColor, Symbol
+from PyQt4.Qwt5.qplt import Plot, Pen, Curve, Symbol
 from PyQt4.Qwt5.qplt import Black, Red, Yellow, Cyan, Magenta, Green, Blue
 
 from PyZio import ZioUtil
@@ -15,7 +15,7 @@ from PyZio.ZioDev import ZioDev
 from PyZio.ZioConfig import buffers, triggers, devices, devices_path
 from zGUI.ZioAttributeGUI import ZioAttributeGUI
 
-import random
+import os
 
 class ZioGuiHandler(object):
     def __init__(self, ui):
@@ -84,7 +84,9 @@ class ZioGuiHandler(object):
 
     def __acquire_chan(self, chan, i):
         """Acquire data from channel and draw its curve"""
+        chan.interface.open_ctrl_data(os.O_RDONLY)
         ctrl, data = chan.interface.read_block(True, True)
+        chan.interface.close_ctrl_data()
         if data == None:
             return None # not plottable
 
