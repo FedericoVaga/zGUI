@@ -6,7 +6,7 @@
 
 from PyQt4 import QtCore, QtGui
 
-from PyQt4.Qwt5.qplt import Circle, QPixmap
+from PyQt4.Qwt5.qplt import Circle
 from PyQt4.Qwt5.qplt import Plot, Pen, Curve, Symbol
 from PyQt4.Qwt5.qplt import Black, Red, Yellow, Cyan, Magenta, Green, Blue
 
@@ -16,6 +16,12 @@ from PyZio.ZioConfig import buffers, triggers, devices, devices_path
 from zGUI.ZioAttributeGUI import ZioAttributeGUI
 
 import os
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
 
 class ZioGuiHandler(object):
     def __init__(self, ui):
@@ -36,6 +42,11 @@ class ZioGuiHandler(object):
         self.b_i = None
         self.t_i = None
 
+        # Place the Plot Object in the GUI
+        self.ui.graph = Plot(self.ui.centralwidget)
+        self.ui.graph.setGeometry(QtCore.QRect(220, 10, 781, 381))
+        self.ui.graph.setObjectName(_fromUtf8("graph"))
+
         # Configure Events
         self.ui.cmbDev.currentIndexChanged.connect(self.change_device)
         self.ui.cmbCset.currentIndexChanged.connect(self.change_cset)
@@ -45,7 +56,9 @@ class ZioGuiHandler(object):
         self.ui.btnAcq.clicked.connect(self.acquire_click)
         self.ui.actionExit.triggered.connect(exit)
 
-        self.refresh_device()# Looks for devices
+        # Looks for devices
+        self.refresh_device()
+
 
     def refresh_device(self):
         """It checks for devices"""
@@ -116,19 +129,12 @@ class ZioGuiHandler(object):
             chan = self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i]
             curves.append(self.__acquire_chan(chan, self.ch_i))
         # Create a plot of curves
-        p = Plot("Data")
-        p.hide()
+        self.ui.graph.clear()
         for c in curves:
             if c == None:
                 print("Cannot plot None")
                 continue
-            p.plot(c)
-        p.setGeometry(QtCore.QRect(0, 0, 755, 365))
-        # Show in the GUI the plot
-        scene = QtGui.QGraphicsScene()
-        scene.addPixmap(QPixmap.grabWidget(p))
-        self.ui.graph.setScene(scene)
-        self.ui.graph.show()
+            self.ui.graph.plot(c)
 
     def acquire_click(self):
         """Event associated to the click on the acquire button. When

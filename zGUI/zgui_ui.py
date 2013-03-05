@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'zgui.ui'
 #
-# Created: Fri Dec 14 15:55:06 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Thu Mar 14 14:18:43 2013
+#      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_zGui(object):
     def setupUi(self, zGui):
@@ -69,9 +78,6 @@ class Ui_zGui(object):
         self.cmbTrig = QtGui.QComboBox(self.centralwidget)
         self.cmbTrig.setGeometry(QtCore.QRect(90, 100, 121, 25))
         self.cmbTrig.setObjectName(_fromUtf8("cmbTrig"))
-        self.graph = QtGui.QGraphicsView(self.centralwidget)
-        self.graph.setGeometry(QtCore.QRect(220, 10, 790, 370))
-        self.graph.setObjectName(_fromUtf8("graph"))
         self.btnAcq = QtGui.QPushButton(self.centralwidget)
         self.btnAcq.setGeometry(QtCore.QRect(90, 355, 120, 25))
         self.btnAcq.setObjectName(_fromUtf8("btnAcq"))
@@ -86,7 +92,7 @@ class Ui_zGui(object):
         self.ckbContinuous.setObjectName(_fromUtf8("ckbContinuous"))
         zGui.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(zGui)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
@@ -107,23 +113,23 @@ class Ui_zGui(object):
         QtCore.QMetaObject.connectSlotsByName(zGui)
 
     def retranslateUi(self, zGui):
-        zGui.setWindowTitle(QtGui.QApplication.translate("zGui", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.lblCset.setText(QtGui.QApplication.translate("zGui", "Csets", None, QtGui.QApplication.UnicodeUTF8))
-        self.lblChan.setText(QtGui.QApplication.translate("zGui", "Channels", None, QtGui.QApplication.UnicodeUTF8))
-        self.zTab.setTabText(self.zTab.indexOf(self.tabDev), QtGui.QApplication.translate("zGui", "Device", None, QtGui.QApplication.UnicodeUTF8))
-        self.zTab.setTabText(self.zTab.indexOf(self.tabCset), QtGui.QApplication.translate("zGui", "Channel Sets", None, QtGui.QApplication.UnicodeUTF8))
-        self.zTab.setTabText(self.zTab.indexOf(self.tabBuf), QtGui.QApplication.translate("zGui", "Buffer", None, QtGui.QApplication.UnicodeUTF8))
-        self.zTab.setTabText(self.zTab.indexOf(self.tabTrig), QtGui.QApplication.translate("zGui", "Trigger", None, QtGui.QApplication.UnicodeUTF8))
-        self.zTab.setTabText(self.zTab.indexOf(self.tabChan), QtGui.QApplication.translate("zGui", "Channels", None, QtGui.QApplication.UnicodeUTF8))
-        self.lblDev.setText(QtGui.QApplication.translate("zGui", "Devices", None, QtGui.QApplication.UnicodeUTF8))
-        self.lblBuf.setText(QtGui.QApplication.translate("zGui", "Buffer", None, QtGui.QApplication.UnicodeUTF8))
-        self.lblTrig.setText(QtGui.QApplication.translate("zGui", "Trigger", None, QtGui.QApplication.UnicodeUTF8))
-        self.btnAcq.setText(QtGui.QApplication.translate("zGui", "Acquire", None, QtGui.QApplication.UnicodeUTF8))
-        self.ckbNShow.setText(QtGui.QApplication.translate("zGui", "Show all channel", None, QtGui.QApplication.UnicodeUTF8))
-        self.ckbPoint.setText(QtGui.QApplication.translate("zGui", "Show points", None, QtGui.QApplication.UnicodeUTF8))
-        self.ckbContinuous.setText(QtGui.QApplication.translate("zGui", "Continuous acquisition", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuFile.setTitle(QtGui.QApplication.translate("zGui", "File", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBar.setWindowTitle(QtGui.QApplication.translate("zGui", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExit.setText(QtGui.QApplication.translate("zGui", "Exit", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExit.setShortcut(QtGui.QApplication.translate("zGui", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
+        zGui.setWindowTitle(_translate("zGui", "MainWindow", None))
+        self.lblCset.setText(_translate("zGui", "Csets", None))
+        self.lblChan.setText(_translate("zGui", "Channels", None))
+        self.zTab.setTabText(self.zTab.indexOf(self.tabDev), _translate("zGui", "Device", None))
+        self.zTab.setTabText(self.zTab.indexOf(self.tabCset), _translate("zGui", "Channel Sets", None))
+        self.zTab.setTabText(self.zTab.indexOf(self.tabBuf), _translate("zGui", "Buffer", None))
+        self.zTab.setTabText(self.zTab.indexOf(self.tabTrig), _translate("zGui", "Trigger", None))
+        self.zTab.setTabText(self.zTab.indexOf(self.tabChan), _translate("zGui", "Channels", None))
+        self.lblDev.setText(_translate("zGui", "Devices", None))
+        self.lblBuf.setText(_translate("zGui", "Buffer", None))
+        self.lblTrig.setText(_translate("zGui", "Trigger", None))
+        self.btnAcq.setText(_translate("zGui", "Acquire", None))
+        self.ckbNShow.setText(_translate("zGui", "Show all channel", None))
+        self.ckbPoint.setText(_translate("zGui", "Show points", None))
+        self.ckbContinuous.setText(_translate("zGui", "Continuous acquisition", None))
+        self.menuFile.setTitle(_translate("zGui", "File", None))
+        self.toolBar.setWindowTitle(_translate("zGui", "toolBar", None))
+        self.actionExit.setText(_translate("zGui", "Exit", None))
+        self.actionExit.setShortcut(_translate("zGui", "Ctrl+Q", None))
 
