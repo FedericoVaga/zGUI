@@ -128,7 +128,12 @@ class ZioGuiHandler(object):
         else:
             chan = self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i]
             curves.append(self.__acquire_chan(chan, self.ch_i))
-        # Create a plot of curves
+
+        self.__plot_curves(curves)
+
+
+    def __plot_curves(self, curves):
+        """It plots given curves into the user interface"""
         self.ui.graph.clear()
         for c in curves:
             if c == None:
