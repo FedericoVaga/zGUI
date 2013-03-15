@@ -24,13 +24,13 @@ except AttributeError:
         return s
 
 class ZioGuiHandler(object):
+    zgui_color = [Red, Green, Blue, Black, Yellow, Cyan, Magenta]
+
     def __init__(self, ui):
         """It initialize the GUI and connect GUI events"""
         self.ui = ui
-
         self.zdevlist = []
         self.color_index = 0;
-        self.color = [Red, Green, Blue, Black, Yellow, Cyan, Magenta]
         self.zdev_attr = []
         self.cset_attr = []
         self.trig_attr = []
@@ -105,9 +105,10 @@ class ZioGuiHandler(object):
 
         name = chan.name + " (" + str(ctrl.seq_num) + ")"
         if self.ui.ckbPoint.isChecked():
-            c = Curve(range(len(data)), data, Pen(self.color[i], 2), Symbol(Circle, Black, 4), name)
+            c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
+                      Symbol(Circle, Black, 4), name)
         else:
-            c = Curve(range(len(data)), data, Pen(self.color[i], 2), name)
+            c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), name)
         return c
 
 
