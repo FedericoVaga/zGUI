@@ -15,6 +15,7 @@ from PyZio.ZioDev import ZioDev
 from PyZio.ZioConfig import buffers, triggers, devices, devices_path
 from zGUI.ZioAttributeGUI import ZioAttributeGUI
 
+from multiprocessing import Process, Queue, Event
 import os
 
 try:
@@ -23,11 +24,13 @@ except AttributeError:
     def _fromUtf8(s):
         return s
 
-class ZioGuiHandler(object):
+class ZioGuiHandler(QtCore.QObject):
+    dtry = QtCore.pyqtSignal(name = "ZioBlockReady")  # Data Ready signal
     zgui_color = [Red, Green, Blue, Black, Yellow, Cyan, Magenta]
 
     def __init__(self, ui):
         """It initialize the GUI and connect GUI events"""
+        super(ZioGuiHandler, self).__init__()
         self.ui = ui
         self.zdevlist = []
         self.color_index = 0;
@@ -42,6 +45,12 @@ class ZioGuiHandler(object):
         self.b_i = None
         self.t_i = None
 
+        # Create the queue of blocks to draw
+        self.sample_queue = Queue()
+        # Create the stop event
+        self.running_event = Event()
+        self.stop_event = Event()
+
         # Place the Plot Object in the GUI
         self.ui.graph = Plot(self.ui.centralwidget)
         self.ui.graph.setGeometry(QtCore.QRect(220, 10, 781, 381))
@@ -55,6 +64,8 @@ class ZioGuiHandler(object):
         self.ui.cmbTrig.currentIndexChanged.connect(self.change_trigger)
         self.ui.btnAcq.clicked.connect(self.acquire_click)
         self.ui.actionExit.triggered.connect(exit)
+
+        self.dtry.connect(self.__plot_curves)
 
         # Looks for devices
         self.refresh_device()
@@ -95,26 +106,19 @@ class ZioGuiHandler(object):
         for agui in self.buf_attr:
             agui.refresh_value()
 
-    def __acquire_chan(self, chan, i):
+    def __acquire_chan(self, chan):
         """Acquire data from channel and draw its curve"""
         chan.interface.open_ctrl_data(os.O_RDONLY)
         ctrl, data = chan.interface.read_block(True, True)
         chan.interface.close_ctrl_data()
-        if data == None:
+        if ctrl == None or data == None:
             return None # not plottable
-
-        name = chan.name + " (" + str(ctrl.seq_num) + ")"
-        if self.ui.ckbPoint.isChecked():
-            c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
-                      Symbol(Circle, Black, 4), name)
-        else:
-            c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), name)
-        return c
+        return chan, ctrl, data
 
 
     def __acquire_data(self):
         # Initialize the list of curves to draw
-        curves = []
+        blocks = []
 
         # If the user wants to display all the channels, then add all
         # curves to the list ...
@@ -123,43 +127,85 @@ class ZioGuiHandler(object):
             for chan in self.zdevlist[self.d_i].cset[self.cs_i].chan:
                 if chan.is_interleaved():
                     continue; # skip interleaved
-                curves.append(self.__acquire_chan(chan, i))
+                blocks.append(self.__acquire_chan(chan))
                 i = i + 1
         # ... otherwise add only the selected channel's curve
         else:
             chan = self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i]
-            curves.append(self.__acquire_chan(chan, self.ch_i))
+            blocks.append(self.__acquire_chan(chan))
 
-        self.__plot_curves(curves)
+        return blocks
 
 
-    def __plot_curves(self, curves):
+    def __plot_curves(self):
         """It plots given curves into the user interface"""
+
         self.ui.graph.clear()
-        for c in curves:
+        blocks = self.sample_queue.get()
+        for chan, ctrl, data in blocks:
+            name = chan.name + " (" + str(ctrl.seq_num) + ")"
+            if self.ui.ckbPoint.isChecked():
+                c = Curve(range(len(data)), data, Pen(self.zgui_color[1], 2), \
+                          Symbol(Circle, Black, 4), name)
+            else:
+                c = Curve(range(len(data)), data, Pen(self.zgui_color[1], 2), \
+                          name)
+
             if c == None:
                 print("Cannot plot None")
                 continue
             self.ui.graph.plot(c)
 
+
+    def __process_acquisition(self, stop_event, running_event, queue):
+        """This function is an indipendent process which update the chart
+        content."""
+        running_event.set()
+        i = 0
+        while True:
+            i = i + 1
+            blocks = self.__acquire_data()
+            queue.put(blocks)
+            # FIXME this signal emission does not work
+            # self.dtry.emit()  # Send data ready signal
+            if stop_event.is_set():
+                stop_event.clear()
+                running_event.clear()
+                break
+
+
     def acquire_click(self):
         """Event associated to the click on the acquire button. When
         invoked, it acquires on all requested channel"""
-
         if self.d_i == None or self.cs_i == None or self.ch_i == None:
             print("Select channel before acquire")
             return
 
+        is_streaming = self.ui.ckbContinuous.isChecked()
 
-        if self.ui.ckbContinuous.isChecked():
-            if self.ui.btnAcq.text() == "Acquire":
-                self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", "Stop", None, QtGui.QApplication.UnicodeUTF8))
-            else:
-                self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", "Acquire", None, QtGui.QApplication.UnicodeUTF8))
+        if not self.running_event.is_set():  # If not running, then start
+            self.p = Process(target = self.__process_acquisition, \
+                             name = "acquisition", \
+                             args = (self.stop_event, self.running_event, \
+                                     self.sample_queue)
+                             )
+            self.p.start()
 
-            # TODO acquire data continous
-        else:
-            self.__acquire_data()
+            if is_streaming:  # If is streaming change the button label to Stop
+                self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", \
+                            "Stop", None, QtGui.QApplication.UnicodeUTF8))
+                self.ui.ckbContinuous.setDisabled(True)
+            else:  # If is not streaming, then
+                self.stop_event.set()  # Single shot, stop acquisition process
+
+        elif is_streaming:  # acquisition process already running streaming
+            self.stop_event.set()  # Stop acquisition (Stop button pressed)
+            self.ui.btnAcq.setText(QtGui.QApplication.translate("zGui", \
+                            "Acquire", None, QtGui.QApplication.UnicodeUTF8))
+            self.ui.ckbContinuous.setDisabled(False)
+        else:  # acquisition process is running a single shot
+            print("Congratulation, you are faster than acquisition. Try Later")
+            return  # nothing to do
 
 
     def __refresh_attr_gui(self, tab, attrListGUI, attrs_list):
