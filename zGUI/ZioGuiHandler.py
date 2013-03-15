@@ -16,7 +16,6 @@ from PyZio.ZioConfig import buffers, triggers, devices, devices_path
 from zGUI.ZioAttributeGUI import ZioAttributeGUI
 
 from multiprocessing import Process, Queue, Event
-import os
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -39,11 +38,12 @@ class ZioGuiHandler(QtCore.QObject):
         self.trig_attr = []
         self.buf_attr = []
         self.chan_attr = []
-        self.d_i = None
-        self.cs_i = None
-        self.ch_i = None
-        self.b_i = None
-        self.t_i = None
+
+        self.device = None
+        self.channel_set = None
+        self.channel = None
+        self.trigger = None
+        self.buffer = None
 
         # Create the queue of blocks to draw
         self.sample_queue = Queue()
@@ -124,16 +124,16 @@ class ZioGuiHandler(QtCore.QObject):
         # curves to the list ...
         if self.ui.ckbNShow.isChecked():
             i = 0
-            for chan in self.zdevlist[self.d_i].cset[self.cs_i].chan:
+            for chan in self.channel_set.chan:
                 if chan.is_interleaved():
                     continue; # skip interleaved
                 blocks.append(self.__acquire_chan(chan))
                 i = i + 1
         # ... otherwise add only the selected channel's curve
         else:
-            chan = self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i]
-            blocks.append(self.__acquire_chan(chan))
+            blocks.append(self.__acquire_chan(self.channel))
 
+        print("Acquired block", blocks)
         return blocks
 
 
@@ -158,7 +158,7 @@ class ZioGuiHandler(QtCore.QObject):
 
 
     def __process_acquisition(self, stop_event, running_event, queue):
-        """This function is an indipendent process which update the chart
+        """This function is an independent process which update the chart
         content."""
         running_event.set()
         i = 0
@@ -177,7 +177,7 @@ class ZioGuiHandler(QtCore.QObject):
     def acquire_click(self):
         """Event associated to the click on the acquire button. When
         invoked, it acquires on all requested channel"""
-        if self.d_i == None or self.cs_i == None or self.ch_i == None:
+        if self.device == None or self.channel_set == None or self.channel == None:
             print("Select channel before acquire")
             return
 
@@ -226,66 +226,78 @@ class ZioGuiHandler(QtCore.QObject):
     def change_device(self, i):
         """Change selected device. It is the combo box handler for change index.
         The i parameter is used to select the device"""
-        self.d_i = i
-        # Update the cset combo box
+        self.device = self.zdevlist[i]
 
-        self.update_object_list(self.__get_name_list(self.zdevlist[self.d_i].cset), self.ui.cmbCset)
-        self.__refresh_attr_gui(self.ui.tabDev, self.zdev_attr, self.zdevlist[self.d_i].attribute)
+        # Update the cset combo box
+        self.update_object_list(self.__get_name_list(self.device.cset), \
+                                self.ui.cmbCset)
+        self.__refresh_attr_gui(self.ui.tabDev, self.zdev_attr, \
+                                self.device.attribute)
 
 
     def change_cset(self, i):
         """Change selected cset. It is the combo box handler for change index.
         The i parameter is used to select the cset"""
-        self.cs_i = i
+        self.channel_set = self.device.cset[i]
         # Update the channel combo box
-        self.update_object_list(self.__get_name_list(self.zdevlist[self.d_i].cset[i].chan), self.ui.cmbChan)
-        self.__refresh_attr_gui(self.ui.tabCset, self.cset_attr, self.zdevlist[self.d_i].cset[self.cs_i].attribute)
+
+        self.update_object_list(self.__get_name_list(self.channel_set.chan), \
+                                self.ui.cmbChan)
+        self.__refresh_attr_gui(self.ui.tabCset, self.cset_attr, \
+                                self.channel_set.attribute)
 
         # update buffer
-        buf_name = self.zdevlist[self.d_i].cset[i].get_current_buffer()
+        buf_name = self.channel_set.get_current_buffer()
         i = self.ui.cmbBuf.findText(buf_name)
         self.ui.cmbBuf.setCurrentIndex(i)
-        if self.b_i == None:  # for initialization
+        if self.buffer == None:  # for initialization
             self.change_buffer(i)
 
         # update trigger
-        trig_name = self.zdevlist[self.d_i].cset[self.cs_i].get_current_trigger()
+        trig_name = self.channel_set.get_current_trigger()
         i = self.ui.cmbTrig.findText(trig_name)
         self.ui.cmbTrig.setCurrentIndex(i)
-        if self.t_i == None:  # for initialization
+        if self.trigger == None:  # for initialization
             self.change_trigger(i)
 
 
     def change_buffer(self, i):
-        """Change selected buffer. It is the combo box handler for change index.
-        The i parameter is used to select the buffer"""
-        if self.d_i == None or self.cs_i == None:
+        """Change selected buffer. It is the combo box handler for change
+        index. The i parameter is used to select the buffer"""
+        if self.device == None or self.channel_set == None or self.channel == None:
             print("Select channel set before change buffer")
             self.ui.cmbBuf.setCurrentIndex(0)
             return
-        self.b_i = i
-        text = self.ui.cmbBuf.itemText(self.b_i)
-        self.zdevlist[self.d_i].cset[self.cs_i].set_current_buffer(text)
+
+        text = self.ui.cmbBuf.itemText(i)
+        self.channel_set.set_current_buffer(text)
+        self.buffer = self.channel.buffer
+
         print("Change Buffer to " + text)
-        self.__refresh_attr_gui(self.ui.tabBuf, self.buf_attr, self.zdevlist[self.d_i].cset[self.cs_i].chan[self.ch_i].buffer.attribute)
+        self.__refresh_attr_gui(self.ui.tabBuf, self.buf_attr, \
+                                self.buffer.attribute)
 
 
     def change_trigger(self, i):
-        """Change selected trigger. It is the combo box handler for change index.
-        The i parameter is used to select the triger"""
-        if self.d_i == None or self.cs_i == None:
+        """Change selected trigger. It is the combo box handler for change
+        index. The i parameter is used to select the trigger"""
+        if self.device == None or self.channel_set == None:
             print("Select channel set before change trigger")
             self.ui.cmbTrig.setCurrentIndex(0)
             return
-        self.t_i = i
+
         text = self.ui.cmbTrig.itemText(i)
-        self.zdevlist[self.d_i].cset[self.cs_i].set_current_trigger(text)
+        self.channel_set.set_current_trigger(text)
+        self.trigger = self.channel_set.trigger
+
         print("Change Trigger to " + text)
-        self.__refresh_attr_gui(self.ui.tabTrig, self.trig_attr, self.zdevlist[self.d_i].cset[self.cs_i].trigger.attribute)
+        self.__refresh_attr_gui(self.ui.tabTrig, self.trig_attr, \
+                                self.trigger.attribute)
 
 
     def change_chan(self, i):
-        """Change selected channel. It is the combo box handler for change index.
-        The i parameter is used to select the channel"""
-        self.ch_i = i
-        self.__refresh_attr_gui(self.ui.tabChan, self.chan_attr, self.zdevlist[self.d_i].cset[self.cs_i].chan[i].attribute)
+        """Change selected channel. It is the combo box handler for change
+        index. The i parameter is used to select the channel"""
+        self.channel = self.channel_set.chan[i]
+        self.__refresh_attr_gui(self.ui.tabChan, self.chan_attr, \
+                                self.channel.attribute)
