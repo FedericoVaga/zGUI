@@ -4,9 +4,8 @@
 @license: GPLv2
 """
 
-from PyQt4 import QtCore, QtGui
-
-from QtGui.QApplication import translate, UnicodeUTF8
+from PyQt4 import QtCore
+from PyQt4.QtGui import QApplication
 
 from PyQt4.Qwt5.qplt import Circle
 from PyQt4.Qwt5.qplt import Plot, Pen, Curve, Symbol
@@ -27,7 +26,6 @@ except AttributeError:
         return s
 
 class ZioGuiHandler(QtCore.QObject):
-    dtry = QtCore.pyqtSignal(name = "ZioBlockReady")  # Data Ready signal
     zgui_color = [Red, Green, Blue, Black, Yellow, Cyan, Magenta]
 
     def __init__(self, ui):
@@ -67,8 +65,6 @@ class ZioGuiHandler(QtCore.QObject):
         self.ui.cmbTrig.currentIndexChanged.connect(self.change_trigger)
         self.ui.btnAcq.clicked.connect(self.acquire_click)
         self.ui.actionExit.triggered.connect(exit)
-
-        self.dtry.connect(self.__plot_curves)
 
         # Looks for devices
         self.refresh_device()
@@ -111,7 +107,6 @@ class ZioGuiHandler(QtCore.QObject):
 
     def __plot_curves(self):
         """It plots given curves into the user interface"""
-
         self.ui.graph.clear()
         blocks = self.sample_queue.get()
         for chan, ctrl, data in blocks:
@@ -148,8 +143,8 @@ class ZioGuiHandler(QtCore.QObject):
                              )
 
             if is_streaming:  # If is streaming, change button label to Stop
-                self.ui.btnAcq.setText(translate("zGui", "Stop", None, \
-                                                 UnicodeUTF8))
+                self.ui.btnAcq.setText(QApplication.translate("zGui", "Stop", \
+                                            None, QApplication.UnicodeUTF8))
                 self.ui.ckbContinuous.setDisabled(True)
             else:                       # If is not streaming
                 self.stop_event.set()   # stop acquisition after first block
@@ -160,8 +155,8 @@ class ZioGuiHandler(QtCore.QObject):
             self.stop_event.set()   # Stop acquisition (Stop button pressed)
             self.p.join()           # Wait the end of the process
 
-            self.ui.btnAcq.setText(translate("zGui", "Acquire", None, \
-                                             UnicodeUTF8))
+            self.ui.btnAcq.setText(QApplication.translate("zGui", "Acquire", \
+                                            None, QApplication.UnicodeUTF8))
             self.ui.ckbContinuous.setDisabled(False)
         else:  # acquisition process is running a single shot
             print("Congratulation, you are faster than acquisition. Try Later")
