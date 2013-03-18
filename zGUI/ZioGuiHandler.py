@@ -132,10 +132,10 @@ class ZioGuiHandler(QtCore.QObject):
         for chan, ctrl, data in blocks:
             name = chan.name + " (" + str(ctrl.seq_num) + ")"
             if self.ui.ckbPoint.isChecked():
-                c = Curve(range(len(data)), data, Pen(self.zgui_color[1], 2), \
+                c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
                           Symbol(Circle, Black, 4), name)
             else:
-                c = Curve(range(len(data)), data, Pen(self.zgui_color[1], 2), \
+                c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
                           name)
 
             if c == None:
