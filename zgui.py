@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 @author: Federico Vaga
 @copyright: Federico Vaga 2012
