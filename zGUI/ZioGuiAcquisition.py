@@ -6,24 +6,41 @@
 
 from PyZio.ZioChan import ZioChan
 from PyZio.ZioCset import ZioCset
+
+from PyQt4 import QtCore
+from PyQt4.QtCore import pyqtSignal
 import os
 
-class ZioGuiAcquisition(object):
+class ZioGuiAcquisition(QtCore.QThread):
     """
-    This class handles the acquisition from the ZIO device
+    This class handles the acquisition from the ZIO device. This class inherit
+    from QThread so, you must run this class as an independent thread.
+
+    This is a producer thread and it communitates to its consumer that a
+    block is ready with the data_ready signal. Consumers of this class can
+    connect an handler to this signal to get informed when a block is ready to
+    be consumed.
     """
 
+    data_ready = pyqtSignal(name = "BlockReady")
 
-    def __init__(self, zobj, stop_event, running_event, queue):
+    def __init__(self, zobj, stop_event, queue, parent = None):
         """
         The constructor store the parameters within the object and it starts
         immediately the acquisition
         """
-        self.zobj = zobj
+        QtCore.QThread.__init__(self, parent)
+
+        self.zobj = None
         self.stop_ev = stop_event
-        self.run_ev = running_event
         self.queue = queue
 
+
+    def set_zobject(self, zobj):
+        self.zobj = zobj
+
+
+    def run(self):
         self.__process_acquisition()
 
 
@@ -57,20 +74,6 @@ class ZioGuiAcquisition(object):
         return blocks
 
 
-    def __flush_unread_queue(self):
-        """
-        This function flush the queue assigned to this process from the
-        unread block. This is done when an acquisition is over and the consumer
-        process did not read some blocks. The acquisition process cannot stop
-        while the queue is not empty
-        """
-        try:
-            while self.queue.get_nowait():
-                pass
-        except:
-            pass
-
-
     def __process_acquisition(self):
         """
         This function handle both case: streaming and one shot. Depending on
@@ -91,16 +94,21 @@ class ZioGuiAcquisition(object):
         elif isinstance(self.zobj, ZioChan):
             func = self.__acquire_chan_block
         else:
-            print("[Error] Unknown object", self.zobj, ", cannot acquire")
+            print("[zGui Acquisition thread][Error] Unknown object" + \
+                  str(self.zobj) + ", cannot acquire")
             return
 
-        self.run_ev.set()   # The acquisition start
-        print("Start Acquisition")
-        while True:
-            self.queue.put(func(self.zobj))
-            if self.stop_ev.is_set():
-                self.flush_unread_queue()
-                self.stop_ev.clear()
-                break;
-        print("End Acquisition")
-        self.run_ev.clear() # The acquisition is over
+        print("[zGui Acquisition thread] Start Acquisition")
+        acquire = True
+        i = 0
+        while acquire:
+            i = i + 1
+            print("[zGui Acquisition thread] Acquisition " + str(i))
+            self.queue.put(func(self.zobj))     # Put a block in the queue
+            if self.stop_ev.is_set():           # Check is it must stop
+                print("[zGui Acquisition thread] Acquisition " + str(i) + " stopped")
+                self.stop_ev.clear()                # Clear stop flag
+                acquire = False                     # Acquisition must stop
+            print("[zGui Acquisition thread] Data Ready " + str(i) + " Signal")
+            self.data_ready.emit()              # Send Data Ready signal
+        print("[zGui Acquisition thread] End Acquisition")

@@ -17,7 +17,8 @@ from PyZio.ZioConfig import buffers, triggers, devices, devices_path
 from zGUI.ZioAttributeGUI import ZioAttributeGUI
 from zGUI.ZioGuiAcquisition import ZioGuiAcquisition
 
-from multiprocessing import Process, Queue, Event
+from Queue import Queue
+from threading import Event
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -39,6 +40,12 @@ class ZioGuiHandler(QtCore.QObject):
         self.trig_attr = []
         self.buf_attr = []
         self.chan_attr = []
+
+        # List of elements to disable while acquiring
+        self.gui_acquire_disable = [self.ui.cmbDev, self.ui.cmbCset, \
+                                    self.ui.cmbChan, self.ui.cmbBuf, \
+                                    self.ui.cmbTrig, self.ui.ckbNShow, \
+                                    self.ui.ckbContinuous]
 
         self.device = None
         self.channel_set = None
@@ -69,6 +76,13 @@ class ZioGuiHandler(QtCore.QObject):
         # Looks for devices
         self.refresh_device()
 
+        # Configure thread
+        self.acq_thread = ZioGuiAcquisition(None, self.stop_event, \
+                                            self.sample_queue)
+        self.acq_thread.started.connect(self.__acquisition_start)
+        self.acq_thread.finished.connect(self.__acquisition_end)
+        self.acq_thread.terminated.connect(self.__acquisition_terminated)
+        self.acq_thread.data_ready.connect(self.__plot_curves)
 
     def refresh_device(self):
         """It checks for devices"""
@@ -107,8 +121,14 @@ class ZioGuiHandler(QtCore.QObject):
 
     def __plot_curves(self):
         """It plots given curves into the user interface"""
+        print("[zGui] Plotting curve(s)")
         self.ui.graph.clear()
-        blocks = self.sample_queue.get()
+        try:
+            blocks = self.sample_queue.get(True, 1) # Blocking request for 1s
+        except:
+            print("[zGui] Signal emitted but there is no element in the queue")
+            return
+        i = 0
         for chan, ctrl, data in blocks:
             name = chan.name + " (" + str(ctrl.seq_num) + ")"
             if self.ui.ckbPoint.isChecked():
@@ -123,6 +143,59 @@ class ZioGuiHandler(QtCore.QObject):
                 continue
             self.ui.graph.plot(c)
 
+            i = i + 1   # Index next color
+
+
+    def __gui_acquire_set_disable(self, disable):
+        for el in self.gui_acquire_disable:
+            el.setDisabled(disable)
+
+    def __flush_unread_queue(self):
+        """
+        This function flush the queue of blocks from the producer QThread. This
+        is done when an acquisition is over to flush the queue from
+        produced blocks.
+        """
+        while not self.sample_queue.empty():
+                self.__plot_curves()
+
+
+    def __acquisition_start(self):
+        print("[zGui] Acquisition start")
+        print("[zGui] Disable GUI elements")
+        self.__gui_acquire_set_disable(True)
+
+        self.ui.btnAcq.setText(QApplication.translate("zGui", "Stop", \
+                                              None, QApplication.UnicodeUTF8))
+
+
+    def __acquisition_end(self):
+        print("[zGui] Acquisition end")
+        print("[zGui] Flush block's queue")
+        self.__flush_unread_queue()
+        print("[zGui] Enable GUI elements")
+        self.__gui_acquire_set_disable(False)
+
+        self.ui.btnAcq.setText(QApplication.translate("zGui", "Acquire", \
+                                              None, QApplication.UnicodeUTF8))
+
+    def __acquisition_terminated(self):
+        print("[zGui] Thread terminated")
+
+    def __start_acquisition_thread(self, is_streaming):
+        print("[zGui] Start a new thread for acquisition")
+        zobj = self.channel_set if self.ui.ckbNShow.isChecked() \
+                        else self.channel
+        if not is_streaming:            # If is not streaming
+            print("[zGui]        One-shot acquisition")
+            self.stop_event.set()           # Set stop flag
+        else:                           # If is streaming
+            print("[zGui]        Streaming acquisition")
+            self.stop_event.clear()         # Clear stop flag
+
+        self.acq_thread.set_zobject(zobj)   # Set the source object
+        self.acq_thread.start()             # Start acquisition
+
 
     def acquire_click(self):
         """Event associated to the click on the acquire button. When
@@ -132,35 +205,12 @@ class ZioGuiHandler(QtCore.QObject):
             return
 
         is_streaming = self.ui.ckbContinuous.isChecked()
-        if not self.running_event.is_set():  # If not running, then start
-            zobj = self.channel_set if self.ui.ckbNShow.isChecked() \
-                                    else self.channel
-
-            self.p = Process(target = ZioGuiAcquisition, \
-                             name = "acquisition", \
-                             args = (zobj, self.stop_event, \
-                                     self.running_event, self.sample_queue)
-                             )
-
-            if is_streaming:  # If is streaming, change button label to Stop
-                self.ui.btnAcq.setText(QApplication.translate("zGui", "Stop", \
-                                            None, QApplication.UnicodeUTF8))
-                self.ui.ckbContinuous.setDisabled(True)
-            else:                       # If is not streaming
-                self.stop_event.set()   # stop acquisition after first block
-
-            self.p.start()  # Start acquisition process
-
-        elif is_streaming:  # acquisition process already running streaming
-            self.stop_event.set()   # Stop acquisition (Stop button pressed)
-            self.p.join()           # Wait the end of the process
-
-            self.ui.btnAcq.setText(QApplication.translate("zGui", "Acquire", \
-                                            None, QApplication.UnicodeUTF8))
-            self.ui.ckbContinuous.setDisabled(False)
-        else:  # acquisition process is running a single shot
-            print("Congratulation, you are faster than acquisition. Try Later")
-            return  # nothing to do
+        if not self.acq_thread.isRunning():  # If not running
+            self.__start_acquisition_thread(is_streaming) # Start acquisition
+        elif is_streaming:                   # If running streaming
+            self.stop_event.set()                         # Stop acquisition
+        else:                                # If running one shot
+            print("[zGui] Congratulation, you are faster than your acquisition")
 
 
     def __refresh_attr_gui(self, tab, attrListGUI, attrs_list):
