@@ -122,42 +122,35 @@ class ZioGuiHandler(QtCore.QObject):
     def __plot_curves(self):
         """It plots given curves into the user interface"""
         print("[zGui] Plotting curve(s)")
-        self.ui.graph.clear()
-        try:
-            blocks = self.sample_queue.get(True, 1) # Blocking request for 1s
-        except:
-            print("[zGui] Signal emitted but there is no element in the queue")
-            return
-        i = 0
-        for chan, ctrl, data in blocks:
-            name = chan.name + " (" + str(ctrl.seq_num) + ")"
-            if self.ui.ckbPoint.isChecked():
-                c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
-                          Symbol(Circle, Black, 4), name)
-            else:
-                c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
-                          name)
 
-            if c == None:
-                print("Cannot plot None")
-                continue
-            self.ui.graph.plot(c)
+        while not self.sample_queue.empty():
+            self.ui.graph.clear()
+            try:
+                blocks = self.sample_queue.get(True, 1) # Blocking request for 1s
+            except:
+                print("[zGui] Signal emitted but there is no element in the queue")
+                return
+            i = 0
+            for chan, ctrl, data in blocks:
+                name = chan.name + " (" + str(ctrl.seq_num) + ")"
+                if self.ui.ckbPoint.isChecked():
+                    c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
+                              Symbol(Circle, Black, 4), name)
+                else:
+                    c = Curve(range(len(data)), data, Pen(self.zgui_color[i], 2), \
+                              name)
 
-            i = i + 1   # Index next color
+                if c == None:
+                    print("Cannot plot None")
+                    continue
+                self.ui.graph.plot(c)
+
+                i = i + 1   # Index next color
 
 
     def __gui_acquire_set_disable(self, disable):
         for el in self.gui_acquire_disable:
             el.setDisabled(disable)
-
-    def __flush_unread_queue(self):
-        """
-        This function flush the queue of blocks from the producer QThread. This
-        is done when an acquisition is over to flush the queue from
-        produced blocks.
-        """
-        while not self.sample_queue.empty():
-                self.__plot_curves()
 
 
     def __acquisition_start(self):
@@ -172,7 +165,7 @@ class ZioGuiHandler(QtCore.QObject):
     def __acquisition_end(self):
         print("[zGui] Acquisition end")
         print("[zGui] Flush block's queue")
-        self.__flush_unread_queue()
+        self.__plot_curves()
         print("[zGui] Enable GUI elements")
         self.__gui_acquire_set_disable(False)
 
