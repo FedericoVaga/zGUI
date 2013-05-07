@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>768</height>
+    <width>1063</width>
+    <height>594</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>400</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -17,219 +23,300 @@
    <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="cmbCset">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>40</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblCset">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>60</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Csets</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblChan">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>130</y>
-      <width>60</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Channels</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cmbChan">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>130</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QTabWidget" name="zTab">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>400</y>
-      <width>991</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="tabDev">
-     <attribute name="title">
-      <string>Device</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="tabCset">
-     <attribute name="title">
-      <string>Channel Sets</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="tabBuf">
-     <attribute name="title">
-      <string>Buffer</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="tabTrig">
-     <attribute name="title">
-      <string>Trigger</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="tabChan">
-     <attribute name="title">
-      <string>Channels</string>
-     </attribute>
-    </widget>
-   </widget>
-   <widget class="QComboBox" name="cmbDev">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>10</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblDev">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>60</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Devices</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblBuf">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>60</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Buffer</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cmbBuf">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>70</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblTrig">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>100</y>
-      <width>60</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Trigger</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cmbTrig">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>100</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnAcq">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>355</y>
-      <width>120</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Acquire</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ckbNShow">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>160</y>
-      <width>190</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show all channel</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ckbPoint">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>180</y>
-      <width>190</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show points</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ckbContinuous">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>200</y>
-      <width>190</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Continuous acquisition</string>
-    </property>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout_2" columnstretch="40,60">
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Objects</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <layout class="QFormLayout" name="formLayout_5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblChan">
+           <property name="text">
+            <string>Channels</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbChan"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblDev">
+           <property name="text">
+            <string>Devices</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbDev"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblTrig">
+           <property name="text">
+            <string>Trigger</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbTrig"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblBuf">
+           <property name="text">
+            <string>Buffer</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbBuf"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblCset">
+           <property name="text">
+            <string>Csets</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbCset"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Acquisition</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="ckbNShow">
+         <property name="text">
+          <string>Show all channel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="ckbPoint">
+         <property name="text">
+          <string>Show points</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QCheckBox" name="ckbContinuous">
+         <property name="text">
+          <string>Continuous acquisition</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="btnAcq">
+         <property name="text">
+          <string>Acquire</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="3">
+     <widget class="QTabWidget" name="zTab">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>4</number>
+      </property>
+      <widget class="QWidget" name="tabDev">
+       <attribute name="title">
+        <string>Device</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QScrollArea" name="scrl_dev_attr">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrl_dev_attr_cont">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>297</width>
+             <height>495</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3" rowstretch="30"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabCset">
+       <attribute name="title">
+        <string>Channel Sets</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QScrollArea" name="scrl_cset_attr">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrl_cset_attr_cont">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>297</width>
+             <height>495</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabBuf">
+       <attribute name="title">
+        <string>Buffer</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QScrollArea" name="scrl_buf_attr">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrl_buf_attr_cont">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>297</width>
+             <height>495</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabTrig">
+       <attribute name="title">
+        <string>Trigger</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QScrollArea" name="scrl_trg_attr">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrl_trg_attr_cont">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>297</width>
+             <height>495</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabChan">
+       <attribute name="title">
+        <string>Channels</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QScrollArea" name="scrl_chan_attr">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrl_chan_attr_cont">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>297</width>
+             <height>495</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_7"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
-     <height>22</height>
+     <width>1063</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -60,9 +60,13 @@ class ZioGuiHandler(QtCore.QObject):
         self.stop_event = Event()
 
         # Place the Plot Object in the GUI
+        layout = self.ui.centralwidget.layout()
+        print(type(layout))
         self.ui.graph = Plot(self.ui.centralwidget)
         self.ui.graph.setGeometry(QtCore.QRect(220, 10, 781, 381))
         self.ui.graph.setObjectName(_fromUtf8("graph"))
+        layout.addWidget(self.ui.graph, 2, 1)
+
 
         # Configure Events
         self.ui.cmbDev.currentIndexChanged.connect(self.change_device)
@@ -206,14 +210,26 @@ class ZioGuiHandler(QtCore.QObject):
             print("[zGui] Congratulation, you are faster than your acquisition")
 
 
-    def __refresh_attr_gui(self, tab, attrListGUI, attrs_list):
+    def __refresh_attr_gui(self, scrl, attrListGUI, attrs_list):
         """Remove old attributes and update the GUI with new ones"""
-        x = 10
-        y = 10
+        layout = scrl.layout()
+        layout.setColumnStretch(0, 30)
+        layout.setColumnStretch(1, 60)
+        layout.setColumnStretch(2, 5)
+        layout.setColumnStretch(3, 5)
+
+        x = 0
         del attrListGUI[:]
         for attr in attrs_list:
-            attrListGUI.append(ZioAttributeGUI(self, tab, attrs_list[attr], x, y))
-            y += 30
+            attrListGUI.append(ZioAttributeGUI(self, scrl, attrs_list[attr]))
+            layout.addWidget(attrListGUI[-1].lbl, x, 0)
+            layout.addWidget(attrListGUI[-1].edt, x, 1)
+            layout.addWidget(attrListGUI[-1].btnGet, x, 2)
+            layout.addWidget(attrListGUI[-1].btnSet, x, 3)
+            x = x + 1
+
+
+
 
     def __get_name_list(self, zobjs):
         names = []
@@ -229,7 +245,7 @@ class ZioGuiHandler(QtCore.QObject):
         # Update the cset combo box
         self.update_object_list(self.__get_name_list(self.device.cset), \
                                 self.ui.cmbCset)
-        self.__refresh_attr_gui(self.ui.tabDev, self.zdev_attr, \
+        self.__refresh_attr_gui(self.ui.scrl_dev_attr_cont, self.zdev_attr, \
                                 self.device.attribute)
 
 
@@ -241,7 +257,7 @@ class ZioGuiHandler(QtCore.QObject):
 
         self.update_object_list(self.__get_name_list(self.channel_set.chan), \
                                 self.ui.cmbChan)
-        self.__refresh_attr_gui(self.ui.tabCset, self.cset_attr, \
+        self.__refresh_attr_gui(self.ui.scrl_cset_attr_cont, self.cset_attr, \
                                 self.channel_set.attribute)
 
         # update buffer
@@ -272,7 +288,7 @@ class ZioGuiHandler(QtCore.QObject):
         self.buffer = self.channel.buffer
 
         print("Change Buffer to " + text)
-        self.__refresh_attr_gui(self.ui.tabBuf, self.buf_attr, \
+        self.__refresh_attr_gui(self.ui.scrl_buf_attr_cont, self.buf_attr, \
                                 self.buffer.attribute)
 
 
@@ -289,7 +305,7 @@ class ZioGuiHandler(QtCore.QObject):
         self.trigger = self.channel_set.trigger
 
         print("Change Trigger to " + text)
-        self.__refresh_attr_gui(self.ui.tabTrig, self.trig_attr, \
+        self.__refresh_attr_gui(self.ui.scrl_trg_attr_cont, self.trig_attr, \
                                 self.trigger.attribute)
 
 
@@ -297,5 +313,5 @@ class ZioGuiHandler(QtCore.QObject):
         """Change selected channel. It is the combo box handler for change
         index. The i parameter is used to select the channel"""
         self.channel = self.channel_set.chan[i]
-        self.__refresh_attr_gui(self.ui.tabChan, self.chan_attr, \
+        self.__refresh_attr_gui(self.ui.scrl_chan_attr_cont, self.chan_attr, \
                                 self.channel.attribute)

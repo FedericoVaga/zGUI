@@ -7,26 +7,23 @@ from PyQt4 import QtCore, QtGui
 
 class ZioAttributeGUI(object):
     """It creates and it handles the GUI for a ZIO attribute"""
-    def __init__(self, zgui, parent, attr, x, y):
+    def __init__(self, zgui, parent, attr):
         """Create the GUI to handle an attribute. It creates (ASCII art):
         Label [field] [Get][Set]"""
         self.zgui = zgui
         self.attr = attr
         # Create the label
         self.lbl = QtGui.QLabel(parent)
-        self.lbl.setGeometry(QtCore.QRect(x, y, 100, 25))
         self.lbl.setText(attr.name)
         self.lbl.setObjectName(attr.name)
         self.lbl.show()
         # Create the edit field
         self.edt = QtGui.QLineEdit(parent)
-        self.edt.setGeometry(QtCore.QRect(x + 100 , y, 150, 25))
         self.edt.setObjectName("edit")
         self.refresh_value()
         self.edt.show()
         # Create the Set button to set the value to the attribute
         self.btnSet = QtGui.QPushButton("Set",parent)
-        self.btnSet.setGeometry(QtCore.QRect(x + 250 , y, 40, 25))
         self.btnSet.setObjectName("write")
         self.btnSet.setEnabled(attr.is_writable())
         if self.btnSet.isEnabled():
@@ -34,7 +31,6 @@ class ZioAttributeGUI(object):
         self.btnSet.show()
         # Create the get button to get the last value of the attribute
         self.btnGet = QtGui.QPushButton("Get", parent)
-        self.btnGet.setGeometry(QtCore.QRect(x + 290 , y, 40, 25))
         self.btnGet.setObjectName("read")
         self.btnGet.setEnabled(attr.is_readable())
         if self.btnGet.isEnabled():
