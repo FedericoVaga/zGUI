@@ -3,7 +3,7 @@
 @copyright: Federico Vaga 2012
 @license: GPLv2
 """
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
 class ZioAttributeGUI(object):
     """It creates and it handles the GUI for a ZIO attribute"""
