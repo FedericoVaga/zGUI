@@ -5,19 +5,18 @@
 @license: GPLv2
 """
 
-import sys
+import sys, PyZio
 
 from PyQt4 import QtGui
 from zGUI.zgui_ui import Ui_zGui
 
 from zGUI.ZioGuiHandler import ZioGuiHandler
-from PyZio import ZioUtil
 
 
 if __name__ == "__main__":
-    if not ZioUtil.is_loaded():
+    if not PyZio.is_loaded():
         exit()
-    ZioUtil.update_all_zio_objects()
+    PyZio.update_all_zio_objects()
 
     app = QtGui.QApplication(sys.argv)
     zGui = QtGui.QMainWindow()
